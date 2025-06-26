@@ -34,7 +34,7 @@ h4{
   margin-right: 500px;
   margin-top: -40px;
   position: relative;
-  z-index: 1;
+  z-index: 10;
 }
 .follow{
   margin-right: 490px;

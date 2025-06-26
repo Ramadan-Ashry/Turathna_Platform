@@ -95,55 +95,59 @@ export default function EngagementSummary() {
           </div>
 
           {/* Details Cards in Grid */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-3">
             {/* Most Liked Article */}
             <div className="bg-white rounded-xl shadow p-6 border border-[#e0c9b9]">
-              <h3 className="text-lg font-semibold text-[#5e3c23] mb-4">Most Liked Article</h3>
+              <h3 className="text-xl text-center font-semibold text-[#5e3c23] mb-4">Most Liked Article</h3>
+              <div className="text-left" >
               <p><strong>Title:</strong> {engagementData.mostLikedArticle.title}</p>
               <p><strong>Likes:</strong> {engagementData.mostLikedArticle.likes.length}</p>
               <p><strong>Date:</strong> {new Date(engagementData.mostLikedArticle.dateCreated).toLocaleDateString()}</p>
-              <p><strong>Content:</strong> {engagementData.mostLikedArticle.content.slice(0, 150)}...</p>
+              <p><strong>Content:</strong> {engagementData.mostLikedArticle.content.slice(0, 450)}</p>
+              </div>
               {engagementData.mostLikedArticle.imageURL?.[0] && (
                 <img
                   src={engagementData.mostLikedArticle.imageURL[0].replace(/^"|"$/g, '')}
                   alt={engagementData.mostLikedArticle.title}
-                  className="w-full h-48 object-cover rounded mt-2"
+                  className="w-full h-48 object-cover rounded mt-12"
                 />
               )}
             </div>
 
             {/* Most Commented Article */}
             <div className="bg-white rounded-xl shadow p-6 border border-[#e0c9b9]">
-              <h3 className="text-lg font-semibold text-[#5e3c23] mb-4">Most Commented Article</h3>
+              <h3 className="text-xl text-center font-semibold text-[#5e3c23] mb-4">Most Commented Article</h3>
+              <div className="text-left" >
               <p><strong>Title:</strong> {engagementData.mostCommentedArticle.title}</p>
               <p><strong>Comments:</strong> {engagementData.mostCommentedArticle.comments.length}</p>
               <p><strong>Date:</strong> {new Date(engagementData.mostCommentedArticle.dateCreated).toLocaleDateString()}</p>
-              <p><strong>Content:</strong> {engagementData.mostCommentedArticle.content.slice(0, 150)}...</p>
+              <p><strong>Content:</strong> {engagementData.mostCommentedArticle.content.slice(0, 450)}</p>
+              </div>
               {engagementData.mostCommentedArticle.imageURL?.[0] && (
                 <img
                   src={engagementData.mostCommentedArticle.imageURL[0].replace(/^"|"$/g, '')}
                   alt={engagementData.mostCommentedArticle.title}
-                  className="w-full h-48 object-cover rounded mt-2"
+                  className="w-full h-48 object-cover rounded mt-12"
                 />
               )}
             </div>
 
             {/* Most Favorited HandiCraft */}
-            <div className="bg-white rounded-xl  shadow p-6 border border-[#e0c9b9] md:col-span-2 ">
-              <h3 className="text-lg font-semibold text-[#5e3c23] mb-4">Most Favorited HandiCraft</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-                <div>
+            <div className="bg-white rounded-xl  shadow p-6 border border-[#e0c9b9] md:col-span-1 ">
+              <h3 className="text-xl text-center font-semibold text-[#5e3c23] mb-4">Most Favorited HandiCraft</h3>
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 ">
+                <div className="text-left">
                   <p><strong>Title:</strong> {engagementData.mostFavoritedHandiCraft.title}</p>
                   <p><strong>Favorites:</strong> {engagementData.mostFavoritedHandiCraft.favorite.length}</p>
                   <p><strong>Price:</strong> ${engagementData.mostFavoritedHandiCraft.price}</p>
                   <p><strong>Date Added:</strong> {new Date(engagementData.mostFavoritedHandiCraft.dateAdded).toLocaleDateString()}</p>
-                  <p><strong>Description:</strong> {engagementData.mostFavoritedHandiCraft.description.slice(0, 150)}...</p>
+                  <p>{engagementData.mostFavoritedHandiCraft.description.slice(0, 450)}<strong>:Description</strong> </p>
                 </div>
                 {engagementData.mostFavoritedHandiCraft.imageOrVideo?.[0] && (
                   <img
                     src={engagementData.mostFavoritedHandiCraft.imageOrVideo[0]}
                     alt={engagementData.mostFavoritedHandiCraft.title}
-                    className="w-full h-48 object-cover rounded"
+                    className="w-full h-48 object-cover rounded mt-2"
                   />
                 )}
               </div>

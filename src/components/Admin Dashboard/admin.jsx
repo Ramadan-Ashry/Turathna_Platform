@@ -277,7 +277,7 @@ export default function AdminDashboard() {
       >       
        <nav className="space-y-4 mt-24">
           <a href="#" className="flex items-center gap-2 hover:text-[#b08968] text-[#b08968]">📊 Dashboard</a>
-          <a href="#" className="flex items-center gap-2 hover:text-[#b08968]">📋 Orders</a>
+         
           <Link to="/allcat" className="flex items-center gap-2 hover:text-[#b08968]">
             📋 Total Categories
           </Link>
@@ -290,8 +290,7 @@ export default function AdminDashboard() {
           <Link to="/Populararticles" className="flex items-center gap-2 hover:text-[#b08968]">
             📰 Popular Articles
           </Link>
-          <a href="#" className="flex items-center gap-2 hover:text-[#b08968]">⚙️ Settings</a>
-          <a href="#" className="flex items-center gap-2 text-[#a44a3f] hover:text-[#8b352d]">🚪 Logout</a>
+          <Link to="/home2" className="flex items-center gap-2 text-[#a44a3f] hover:text-[#8b352d]">🚪 Logout</Link>
         </nav>
       </aside>
 
@@ -321,7 +320,7 @@ export default function AdminDashboard() {
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-[#f5eee6] rounded-xl p-6 w-full max-w-md border border-[#e0c9b9]">
-              <h3 className="text-lg font-semibold mb-4 text-[#5e3c23]">Assign Admin Role</h3>
+              <h3 className="text-lg font-semibold mb-4 text-[#5e3c23] w-[200px]">Assign Admin Role</h3>
               <form onSubmit={handleAddAdmin}>
                 <div className="mb-4">
                   <label className="block text-[#5e3c23] mb-2">Username</label>
@@ -355,7 +354,8 @@ export default function AdminDashboard() {
                     className="w-full border border-[#e0c9b9] rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b08968] bg-white"
                   >
                     <option value="Admin">Admin</option>
-                    <option value="SuperAdmin">SuperAdmin</option>
+                    <option value="User">User</option>
+                   
                   </select>
                 </div>
                 {formError && <p className="text-[#a44a3f] text-sm mb-4">{formError}</p>}
@@ -636,9 +636,9 @@ export default function AdminDashboard() {
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           <div className="bg-[#f5eee6] rounded-xl shadow p-6 flex items-center justify-between border border-[#e0c9b9]">
             <div className="flex items-center gap-4">
-              <div className="text-[#b08968] text-4xl">👤➕</div>
+              <div className="text-[#b08968] text-4xl">➕</div>
               <div>
-                <h4 className="text-lg font-semibold text-[#5e3c23]">Assign Admin Role</h4>
+                <h4 className="text-lg font-semibold text-[#5e3c23] w-[200px]">Assign Admin Role</h4>
                 <p className="text-sm text-[#6e4c2f]">Assign roles to existing users</p>
               </div>
             </div>
@@ -650,15 +650,6 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          <div className="bg-[#f5eee6] rounded-xl shadow p-6 flex items-center justify-between border border-[#e0c9b9]">
-            <div className="flex items-center gap-4">
-              <div className="text-[#b08968] text-4xl">👑</div>
-              <div>
-                <h4 className="text-lg font-semibold text-[#5e3c23]">Top Active Users</h4>
-                <p className="text-sm text-[#6e4c2f]">View most active users</p>
-              </div>
-            </div>
-          </div>
 
           <div className="bg-[#f5eee6] rounded-xl shadow p-6 flex items-center justify-between border border-[#e0c9b9]">
             <div className="flex items-center gap-4">
@@ -670,32 +661,6 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-[#f5eee6] p-4 rounded-xl shadow border border-[#e0c9b9]">
-            <h3 className="text-lg font-semibold mb-4 text-[#5e3c23]">Recent Orders</h3>
-            <ul className="space-y-2">
-              {recentOrders.map((order, index) => (
-                <li key={index} className="flex justify-between text-sm">
-                  <span className="text-[#5e3c23]">{order.product}</span>
-                  <span className="text-[#6e4c2f]">{order.price}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-[#f5eee6] p-4 rounded-xl shadow border border-[#e0c9b9]">
-            <h3 className="text-lg font-semibold mb-4 text-[#5e3c23]">Top Customers</h3>
-            <ul className="space-y-2">
-              {topCustomers.map((cust, index) => (
-                <li key={index} className="flex justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#b08968]">👤</span>
-                    <span className="text-[#5e3c23]">{cust.name}</span>
-                  </span>
-                  <span className="text-[#6e4c2f]">{cust.amount}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
 
           <div className="bg-[#f5eee6] p-4 rounded-xl shadow border border-[#e0c9b9]">
             <h3 className="text-lg font-semibold mb-4 text-[#5e3c23]">Top Active Users</h3>

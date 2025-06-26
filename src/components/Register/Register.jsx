@@ -63,10 +63,9 @@ export default function Register() {
         if (response.data.isSucceeded) {
           setUserMessage("تم التسجيل بنجاح");
 
-          // تخزين اسم المستخدم في localStorage
+         
           const fullName = `${values.firstName} ${values.lastName}`;
-          localStorage.setItem("userName", fullName); // تخزين الاسم الكامل
-
+          localStorage.setItem("userName", fullName); 
           setTimeout(() => {
             navigate('/');
           }, 1000); 
@@ -104,7 +103,7 @@ export default function Register() {
         )}
         <form onSubmit={formik.handleSubmit}>
           <div className='my-2'>
-            <label>الاسم الأول</label>
+            <label style={{fontSize:"18px" , color:"beige"}}>الاسم الأول</label>
             <input
               name="firstName"
               onChange={formik.handleChange}
@@ -114,7 +113,7 @@ export default function Register() {
             {formik.errors.firstName && <div className="text-red-500">{formik.errors.firstName}</div>}
           </div>
           <div className='my-2'>
-            <label>الاسم الأخير</label>
+            <label style={{fontSize:"18px" , color:"beige"}}>الاسم الأخير</label>
             <input
               name="lastName"
               onChange={formik.handleChange}
@@ -124,7 +123,7 @@ export default function Register() {
             {formik.errors.lastName && <div className="text-red-500">{formik.errors.lastName}</div>}
           </div>
           <div className='my-2'>
-            <label>البريد الإلكتروني</label>
+            <label style={{fontSize:"18px" , color:"beige"}}>البريد الإلكتروني</label>
             <input
               name="email"
               type="email"
@@ -135,7 +134,7 @@ export default function Register() {
             {formik.errors.email && <div className="text-red-500">{formik.errors.email}</div>}
           </div>
           <div className='my-2'>
-            <label>كلمة المرور</label>
+            <label style={{fontSize:"18px" , color:"beige"}}>كلمة المرور</label>
             <input
               name="password"
               type="password"
@@ -146,7 +145,7 @@ export default function Register() {
             {formik.errors.password && <div className="text-red-500">{formik.errors.password}</div>}
           </div>
           <div className='my-2'>
-            <label>تأكيد كلمة المرور</label>
+            <label style={{fontSize:"18px" , color:"beige"}}>تأكيد كلمة المرور</label>
             <input
               name="confirmPassword"
               type="password"
@@ -157,7 +156,7 @@ export default function Register() {
             {formik.errors.confirmPassword && <div className="text-red-500">{formik.errors.confirmPassword}</div>}
           </div>
           <div className='my-2'>
-            <label>تاريخ الميلاد</label>
+            <label style={{fontSize:"18px" , color:"beige"}}>تاريخ الميلاد</label>
             <input
               name="dateOfBirth"
               type="date"
@@ -166,19 +165,34 @@ export default function Register() {
             />
             {formik.errors.dateOfBirth && <div className="text-red-500">{formik.errors.dateOfBirth}</div>}
           </div>
-          <div className='my-2'>
-            <label>الجنس</label>
-            <select
-              name="gender"
-              onChange={formik.handleChange}
-              value={formik.values.gender}
-            >
-              <option value="">اختر الجنس</option>
-              <option value="1">ذكر</option>
-              <option value="0">أنثى</option>
-            </select>
-            {formik.errors.gender && <div className="text-red-500">{formik.errors.gender}</div>}
-          </div>
+         <div className='my-2'>
+ <label style={{fontSize:"18px" , color:"beige"}}>النوع</label>
+ <div className='flex gap-12 mt-2'>
+   <label className='flex items-center justify-center gap-2'>
+     <input
+       type="radio"
+       name="gender"
+       value="1"
+       checked={formik.values.gender === "1"}
+       onChange={formik.handleChange}
+       className='w-4 h-4 mt-2 '
+     />
+     <span style={{fontSize:"18px" , color:"beige" , marginRight:"10px"  }}>ذكر</span>
+   </label>
+   <label className='flex items-center gap-2'>
+     <input
+       type="radio"
+       name="gender"
+       value="0"
+       checked={formik.values.gender === "0"}
+       onChange={formik.handleChange}
+       className='w-4 h-4 mt-2'
+     />
+     <span style={{fontSize:"18px" , color:"beige" ,marginRight:"10px" }}>أنثى</span>
+   </label>
+ </div>
+ {formik.errors.gender && <div className="text-red-500">{formik.errors.gender}</div>}
+</div>
           <button
             type="submit"
             disabled={isLoading}

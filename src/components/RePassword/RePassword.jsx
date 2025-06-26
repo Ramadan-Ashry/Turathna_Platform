@@ -33,7 +33,6 @@ export default function RePassword() {
       setUserMessage(null);
       
       try {
-        // إصلاح: تغيير هيكل البيانات المرسلة
         const requestData = new URLSearchParams();
         requestData.append('Email', values.email);
         
@@ -49,7 +48,6 @@ export default function RePassword() {
           }
         );
 
-        // التحقق من حالة الاستجابة
         if (response.ok) {
           const data = await response.text();
           setUserMessage(data || "تم إرسال رمز التحقق إلى بريدك الإلكتروني");
@@ -86,7 +84,7 @@ export default function RePassword() {
 
         <form onSubmit={formik.handleSubmit}>
           <div className='my-2'>
-            <label htmlFor="email" className="block mb-2 text-sm font-medium text-right w-full">البريد الإلكتروني</label>
+            <label htmlFor="email" className="block mb-4 text-xl text-[beige] font-medium text-right w-full">البريد الإلكتروني</label>
             <input
               name="email"
               type="email"
@@ -112,7 +110,7 @@ export default function RePassword() {
           </div>
           <div className='text-center mt-4'>
             <p className="text-sm">
-              <span onClick={() => navigate('/login')} className="text-[#A68B55] hover:underline cursor-pointer">الرجوع إلى تسجيل الدخول</span>
+              <span onClick={() => navigate('/login')} className="text-[beige] hover:underline cursor-pointer">الرجوع إلى تسجيل الدخول</span>
             </p>
           </div>
         </form>

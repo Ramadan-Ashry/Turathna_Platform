@@ -77,7 +77,7 @@ export default function Home() {
     <div className="p-5">
       {posts.length > 0 ? (
         posts.map((post) => (
-          !post.isHidden && ( // تحقق من حالة isHidden
+          !post.isHidden && ( 
             <div key={post.id} className={`mb-8 p-4 bg-white shadow-md rounded-lg ${styles.leftside}`}>
               <div className="flex items-center gap-2">
                 <img

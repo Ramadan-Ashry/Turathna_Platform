@@ -30,14 +30,11 @@ export default function PostSettings({post,setPosts}) {
 
       {isListOpen && (
         <div 
-          className="absolute  z-10 right-0  shadow-lg mt-2 p-2 w-48" 
+          className="absolute  z-10 left-0  shadow-lg mt-2 p-2 w-60 " 
           style={{ border: '2px solid #B18B5E', backgroundColor: '#FFFCFC' }}
         >
-          <div className="cursor-pointer hover:bg-gray-100 p-2">
-            <p className="font-semibold ">تعديل المنشور</p>
-            <p className="text-sm text-gray-500">يمكنك تعديل هذا المنشور خلال ساعة</p>
-          </div>
-          <div className="cursor-pointer hover:bg-gray-100 p-2">
+          
+          <div className="cursor-pointer hover:bg-gray-100 p-2 ">
             <p className="font-semibold text-red-600" onClick={hidePost}>إخفاء المنشور</p>
             <p className="text-sm text-gray-500">إخفاء هذا المنشور</p>
           </div>

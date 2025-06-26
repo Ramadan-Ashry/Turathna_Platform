@@ -16,8 +16,8 @@ const Features = () => {
     },
     {
       icon: <FaChalkboardTeacher className="text-5xl text-[#8B4513] mb-4" />,
-      title: "ورش تعليمية",
-      description: "تعلم الحرف اليدوية مباشرة من الحرفيين المحترفين عبر جلسات بث حي تفاعلية"
+      title: "توصيات المجتمع",
+      description: "ابحث عن الحرفي المناسب بوصف بسيط!"
     }
   ];
 

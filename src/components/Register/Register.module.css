@@ -6,6 +6,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 80px;
+  
   }
   
   /* .formContainer {
@@ -24,7 +26,8 @@
     max-width: 500px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
     color: white; 
-    margin-top: 65px;
+    margin-top: 80px;
+    margin-bottom: 80px;
   }
   .formContainer h1 {
     font-size: 2rem;

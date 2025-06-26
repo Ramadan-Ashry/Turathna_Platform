@@ -6,6 +6,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  
   }
   
   .formContainer {
@@ -15,7 +16,8 @@
     width: 100%;
     max-width: 500px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* إضافة ظل للمربع */
-    color: white; /* تغيير لون النص إلى الأبيض ليكون واضحًا على الخلفية الداكنة */
+    color: white;
+    margin-top: 60px;
   }
   
   .formContainer h1 {

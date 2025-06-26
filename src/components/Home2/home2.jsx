@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import axios from 'axios';
 import borderPattern from '../../assets/pattern.png';
 import man from '../../assets/img1.webp';
 import man2 from '../../assets/p1.jpg';
@@ -12,8 +13,60 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Footer from "../Footer/Footer";
 import Features from '../Landing/Feature.jsx';
+import { TokenContext } from '../../Context/TokenContext.jsx';
 
 const HandicraftsHomePage = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  const productsContainerRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const { isAuthenticated, token } = useContext(TokenContext);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(
+          `https://ourheritage.runasp.net/api/HandiCrafts?PageIndex=1&PageSize=12`,
+          {
+            headers: {
+              Accept: 'text/plain',
+              Authorization: `Bearer ${token}`  },
+          }
+        );
+        setProducts(response.data.items || []);
+        setLoading(false);
+      } catch (err) {
+        setError('فشل في تحميل المنتجات. حاول مرة أخرى لاحقًا.');
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [token]);
+
+  useEffect(() => {
+    if (products.length > 0 && !isHovering) {
+      const interval = setInterval(() => {
+        setCurrentProductIndex((prevIndex) => 
+          (prevIndex + 1) % Math.ceil(products.length / 4)
+        );
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [products, isHovering]);
+
+  const getCurrentProducts = () => {
+    const startIndex = currentProductIndex * 4;
+    return products.slice(startIndex, startIndex + 4);
+  };
+
+  const handleDotClick = (index) => {
+    setCurrentProductIndex(index);
+  };
+
   return (
     <div className="min-h-screen text-[#5C4033] font-serif">
       {/* Navbar */}
@@ -113,22 +166,90 @@ const HandicraftsHomePage = () => {
             />
           </div>
         </div>
-<Features/>
+
+        <Features />
+
+        {/* Products Cards Section */}
+        <section className="max-w-6xl mx-auto px-4 py-12">
+          <h2 className="text-4xl font-bold text-[#3b312a] text-center mb-10 !font-cairo">
+            منتجاتنا المميزة
+          </h2>
+          {loading ? (
+            <p className="text-center text-[#5C4033] !font-cairo">جارٍ تحميل المنتجات...</p>
+          ) : error ? (
+            <p className="text-center text-red-600 !font-cairo">{error}</p>
+          ) : products.length === 0 ? (
+            <p className="text-center text-[#5C4033] !font-cairo">لا توجد منتجات لعرضها.</p>
+          ) : (
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            >
+              <div 
+                ref={productsContainerRef}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 transition-opacity duration-500 ease-in-out"
+              >
+                {getCurrentProducts().map((product) => (
+                  <Link
+                    to={`/product/${product.id}`}
+                    key={`${product.id}-${currentProductIndex}`}
+                    className="bg-white rounded-lg shadow-md overflow-hidden transform transition hover:scale-105 flex flex-col h-full"
+                  >
+                    <img
+                      src={product.imageOrVideo[0] || man}
+                      alt={product.title}
+                      className="w-full h-48 object-cover transition-opacity duration-300"
+                      onError={(e) => { e.target.src = man; }}
+                    />
+                    <div className="p-4 flex-grow">
+                      <h3 className="text-lg font-semibold text-[#3b312a] mb-2 !font-cairo">
+                        {product.title}
+                      </h3>
+                      <p className="text-[#5C4033] text-sm mb-3 !font-cairo line-clamp-2">
+                        {product.description}
+                      </p>
+                      <p className="text-[#8B4513] font-bold text-lg !font-cairo mt-auto">
+                        {product.price} ر.س
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <div className="flex justify-center mt-8 space-x-2">
+                {Array.from({ length: Math.ceil(products.length / 4) }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDotClick(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index === currentProductIndex ? 'bg-[#8B4513] w-6' : 'bg-gray-300'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+              <div className="text-center mt-8">
+                <Link
+                  to={isAuthenticated ? "/shop" : "/login"}
+                  className="bg-[#8B4513] text-white py-3 px-8 rounded-lg font-semibold hover:bg-[#5D4037] transition inline-block !font-cairo text-lg shadow-md hover:shadow-lg"
+                >
+                  عرض جميع المنتجات
+                </Link>
+              </div>
+            </div>
+          )}
+        </section>
+
         {/* زر الرجوع للأعلى */}
         <button
-          className="fixed bottom-6 w-14 h-14 left-6 bg-[#9e4f1b] text-white p-3 rounded-full shadow-md hover:bg-[#c2601e] transition"
+          className="fixed bottom-6 w-14 h-14 left-6 bg-[#9e4f1b] text-white p-3 rounded-full shadow-md hover:bg-[#c2601e] transition transform hover:scale-110"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
           ↑
         </button>
       </section>
 
-     
- 
-      {/* <AboutSection /> */}
-
-<Footer/>
-
+      <Footer />
     </div>
   );
 };

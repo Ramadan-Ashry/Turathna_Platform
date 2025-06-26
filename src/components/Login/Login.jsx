@@ -13,10 +13,9 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   let navigate = useNavigate();
 
-  // استرجاع الاسم الأول والاسم الأخير من localStorage
   const userFirstName = localStorage.getItem("firstName");
   const userLastName = localStorage.getItem("lastName");
-  const userName = `${userFirstName} ${userLastName}`; // دمج الاسم الأول مع الاسم الأخير
+  const userName = `${userFirstName} ${userLastName}`; 
 
   function validate(values) {
     let errors = {};
@@ -57,19 +56,19 @@ export default function Login() {
 
       if (response.data && response.data.model && response.data.model.token) {
         const { token, userId } = response.data.model;
-        localStorage.setItem("userToken", token); // حفظ التوكن
-        localStorage.setItem("userId", userId); // حفظ الـ userId
-        localStorage.setItem("userName", userName); // حفظ الاسم الكامل في localStorage
-        setToken(token);  // حفظ التوكن في context
-        setUserMessage(response.data.message); // عرض رسالة النجاح
+        localStorage.setItem("userToken", token);   
+        localStorage.setItem("userId", userId);  
+        localStorage.setItem("userName", userName); 
+        setToken(token);
+        setUserMessage(response.data.message);
         setIsLoading(false);
-        navigate('/'); // التوجيه إلى الصفحة الرئيسية بعد النجاح
+        navigate('/'); 
       } else {
         throw new Error("Invalid response structure");
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "حدث خطأ ما"; // رسالة الخطأ
-      setErrorMessage(errorMessage); // عرض رسالة الخطأ
+      const errorMessage = err.response?.data?.message || "حدث خطأ ما";
+      setErrorMessage(errorMessage);
       setIsLoading(false);
     }
   }

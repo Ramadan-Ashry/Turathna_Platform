@@ -31,13 +31,14 @@ import PopularCategories from './components/Admin Dashboard/totalCategory'
 import UserActivityDetails from './components/Admin Dashboard/userActivity'
 import EngagementSummary from './components/Admin Dashboard/EngagementSummary'
 import RecommendationsPage from'./components/For You/RecommendationsPage'
+import FavoritesPage from './components/Shop/FavoritesPage';
 function App() {
   const routes = createBrowserRouter([
     {
       path: "/",
       element: <Layout />,
       children: [
-        { index: true, element: <Landing /> },
+        { index: true, element: <HandicraftsHomePage /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
         { path: "repassword", element: <RePassword /> },
@@ -66,7 +67,7 @@ function App() {
 
 {path:"/foryou",element:<RecommendationsPage/>},
 
-
+{path:"/favorites", element:<FavoritesPage />},
 
         { path: "*", element: <Navigate to="/login" replace /> },
       ],

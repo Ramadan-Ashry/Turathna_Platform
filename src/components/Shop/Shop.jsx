@@ -57,7 +57,7 @@ const Shop = () => {
   const fetchCategories = async () => {
     try {
       const res = await axios.get(
-        "https://ourheritage.runasp.net/api/Categories?PageIndex=1&PageSize=10",
+        "https://ourheritage.runasp.net/api/Categories?PageIndex=1&PageSize=50",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCategories(res.data.items || []);
@@ -67,6 +67,8 @@ const Shop = () => {
     }
   };
 
+  // دالة لتحميل مفضلات المستخدم من الخادم
+  
   const fetchProducts = () => {
     setLoading(true);
     axios
@@ -92,12 +94,8 @@ const Shop = () => {
           })).sort((a, b) => b.id - a.id);
           setAllProducts(uniqueProducts);
           
-          const initialFavorites = {};
-          uniqueProducts.forEach(p => {
-            const isFav = localStorage.getItem(`favorite-${p.id}`) === 'true';
-            initialFavorites[p.id] = isFav;
-          });
-          setLocalFavorites(initialFavorites);
+          // بعد تعيين المنتجات، حمل المفضلات
+          fetchUserFavorites();
         } else {
           setAllProducts([]);
         }
@@ -125,6 +123,91 @@ const Shop = () => {
     }
   };
 
+  // New function to clean invalid favorites
+  const cleanInvalidFavorites = async () => {
+    try {
+      const favorites = Object.keys(localStorage)
+        .filter(key => key.startsWith('favorite-'));
+      
+      for (const key of favorites) {
+        const productId = key.split('-')[1];
+        const value = localStorage.getItem(key);
+        
+        // Remove invalid entries
+        if (value === 'undefined' || value === undefined) {
+          localStorage.removeItem(key);
+        } 
+        // Verify existing favorites
+        else if (value === 'true') {
+          const exists = await verifyProductExists(productId);
+          if (!exists) {
+            localStorage.removeItem(key);
+            setLocalFavorites(prev => ({ ...prev, [productId]: false }));
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error cleaning favorites:", err);
+    }
+  };
+
+  // Verify if product exists in database
+  const verifyProductExists = async (productId) => {
+    try {
+      const res = await axios.get(
+        `https://ourheritage.runasp.net/api/HandiCrafts/${productId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return res.status === 200;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  // Updated fetchUserFavorites with validation
+  const fetchUserFavorites = async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId || !token) return;
+
+    try {
+      const res = await axios.get(
+        `https://ourheritage.runasp.net/api/Favorites/user/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (Array.isArray(res.data)) {
+        const validFavorites = {};
+        const updatedProducts = [...allProducts];
+        
+        for (const fav of res.data) {
+          const exists = await verifyProductExists(fav.handiCraftId);
+          
+          if (exists) {
+            validFavorites[fav.handiCraftId] = true;
+            
+            const productIndex = updatedProducts.findIndex(p => p.id === fav.handiCraftId);
+            if (productIndex !== -1) {
+              updatedProducts[productIndex] = { 
+                ...updatedProducts[productIndex], 
+                favoriteId: fav.id 
+              };
+            }
+          } else {
+            // Remove invalid favorite from server
+            await axios.delete(
+              `https://ourheritage.runasp.net/api/Favorites/${fav.id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+          }
+        }
+        
+        setAllProducts(updatedProducts);
+        setLocalFavorites(validFavorites);
+      }
+    } catch (err) {
+      console.error("Error fetching user favorites:", err);
+    }
+  };
   const timeAgoCustom = (utcDateString) => {
     if (!utcDateString) return "تاريخ غير متاح";
     
@@ -189,80 +272,219 @@ const Shop = () => {
     }
   };
 
-  const toggleFavorite = async (productId) => {
-    const userId = Number(localStorage.getItem('userId'));
-    const token = localStorage.getItem('userToken');
+  // دالة تبديل حالة المفضلة (إضافة/حذف) لمنتج معيّن
+ const toggleFavorite = async (productId) => {
+  const exists = await verifyProductExists(productId);
+  if (!exists) {
+    alert("هذا المنتج لم يعد متاحاً");
+    setLocalFavorites(prev => ({ ...prev, [productId]: false }));
+    return;
+  }
+  const userId = Number(localStorage.getItem('userId'));
+  const token = localStorage.getItem('userToken');
 
-    if (!userId || !productId || !token) {
-      console.error("userId أو productId أو token غير موجود!");
-      alert("حدث خطأ: بيانات غير مكتملة.");
-      throw new Error("بيانات غير مكتملة");
-    }
+  if (!userId || !productId || !token) {
+    console.error("userId أو productId أو token غير موجود!");
+    alert("حدث خطأ: بيانات غير مكتملة.");
+    return;
+  }
 
-    try {
-      const checkRes = await axios.get(
-        `https://ourheritage.runasp.net/api/Favorites/handicraft/${productId}`,
+  try {
+    // تحقق هل المنتج موجود بالفعل في المفضلة
+    const checkRes = await axios.get(
+      `https://ourheritage.runasp.net/api/Favorites/handicraft/${productId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    const favoriteData = checkRes.data;
+
+    if (favoriteData?.id) {
+      // إذا موجود، نحذفه
+      await axios.delete(
+        `https://ourheritage.runasp.net/api/Favorites/${favoriteData.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      localStorage.setItem(`favorite-${productId}`, 'false');
+      setFavorites(prev => prev.filter(p => p.id !== productId));
+    } else {
+      // إذا غير موجود نضيفه
+      await axios.post(
+        "https://ourheritage.runasp.net/api/Favorites/add",
+        {
+          userId,
+          handiCraftId: productId,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
           },
         }
       );
+      localStorage.setItem(`favorite-${productId}`, 'true');
+    }
+  } catch (err) {
+    console.error('❌ خطأ أثناء التبديل في المفضلة:', err.response?.data || err.message);
 
-      const favoriteData = checkRes.data;
+    if (err.response?.status === 409) {
+      alert('⚠️ هذا المنتج موجود بالفعل في المفضلة.');
+    } else {
+      alert('حدث خطأ أثناء التفاعل مع المفضلة.');
+    }
+  }
+};
 
-      if (favoriteData && favoriteData.id) {
-        await axios.delete(
-          `https://ourheritage.runasp.net/api/Favorites/${favoriteData.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+
+ const handleFavoriteClick = async (productId) => {
+  const product = allProducts.find(p => p.id === productId);
+  if (!product) return;
+
+  const wasFav = localFavorites[productId];
+  
+  // تحديث واجهة المستخدم فوراً
+  setLocalFavorites(prev => ({ ...prev, [productId]: !wasFav }));
+
+  try {
+    const userId = Number(localStorage.getItem("userId"));
+    
+    // محاولة الحصول على معرف المفضلة الحالي
+    let favoriteId = product.favoriteId;
+    
+    // إذا لم يكن لدينا معرف، نحاول الحصول عليه من الخادم
+    if (!favoriteId && wasFav) {
+      try {
+        const favResponse = await axios.get(
+          `https://ourheritage.runasp.net/api/Favorites/handicraft/${productId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+        if (favResponse.data) {
+          favoriteId = favResponse.data.id;
+        }
+      } catch (fetchError) {
+        console.warn("Failed to fetch favorite ID", fetchError);
+      }
+    }
 
-        localStorage.setItem(`favorite-${productId}`, 'false');
+    if (wasFav) {
+      // إزالة من المفضلة
+      if (!favoriteId) {
+        // إذا لم نجد معرف، نبحث عن المفضلة للمستخدم الحالي
+        const userFavorites = await axios.get(
+          `https://ourheritage.runasp.net/api/Favorites/user/${userId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         
-      } else {
-        await axios.post(
-          "https://ourheritage.runasp.net/api/Favorites/add",
+        const fav = userFavorites.data.find(f => f.handiCraftId === productId);
+        if (fav) {
+          favoriteId = fav.id;
+        } else {
+          throw new Error("Favorite not found");
+        }
+      }
+      
+      await axios.delete(
+        `https://ourheritage.runasp.net/api/Favorites/${favoriteId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // تحديث حالة المنتج
+      setAllProducts(prev => prev.map(p => 
+        p.id === productId ? { ...p, favoriteId: null } : p
+      ));
+    } else {
+      // إضافة إلى المفضلة
+      try {
+        const response = await axios.post(
+          "https://ourheritage.runasp.net/api/Favorites",
           {
             userId,
-            handiCraftId: productId,
+            handiCraftId: productId
           },
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-              "Accept": "text/plain",
-            },
+              "Content-Type": "application/json"
+            }
           }
         );
-
-        localStorage.setItem(`favorite-${productId}`, 'true');
-       
+        
+        // تحديث معرف المفضلة
+        setAllProducts(prev => prev.map(p => 
+          p.id === productId ? { ...p, favoriteId: response.data.id } : p
+        ));
+      } catch (addError) {
+        if (addError.response?.status === 409) {
+          // إذا كان المنتج مضافاً بالفعل، نحصل على المعرف
+          const existingFav = await axios.get(
+            `https://ourheritage.runasp.net/api/Favorites/handicraft/${productId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          
+          if (existingFav.data?.id) {
+            // تحديث الحالة المحلية
+            setAllProducts(prev => prev.map(p => 
+              p.id === productId ? { ...p, favoriteId: existingFav.data.id } : p
+            ));
+            
+            // نبقى في حالة "مفضل"
+            return;
+          }
+        }
+        throw addError;
       }
-    } catch (err) {
-      console.error('Favorite toggle error:', err.response?.data || err.message);
-      alert('حدث خطأ أثناء التفاعل مع المفضلة.');
-      throw err;
     }
-  };
+  } catch (error) {
+    // التراجع عن التغيير في حالة الخطأ
+    setLocalFavorites(prev => ({ ...prev, [productId]: wasFav }));
+    
+    console.error("❌ خطأ أثناء التبديل في المفضلة:", error);
+    
+    if (error.response?.status === 409) {
+      alert("هذا المنتج مضاف بالفعل إلى المفضلة");
+      // تحديث الحالة لتعكس الواقع
+      setLocalFavorites(prev => ({ ...prev, [productId]: true }));
+    } else {
+      alert(error.response?.data?.message || "حدث خطأ أثناء التبديل في المفضلة");
+    }
+  }
+};
 
-  const handleFavoriteClick = async (productId) => {
-    const prevState = localFavorites[productId];
-    const newState = !prevState;
-    
-    setLocalFavorites(prev => ({ ...prev, [productId]: newState }));
-    localStorage.setItem(`favorite-${productId}`, newState.toString());
-    
-    try {
-      await toggleFavorite(productId);
-    } catch (error) {
-      setLocalFavorites(prev => ({ ...prev, [productId]: prevState }));
-      localStorage.setItem(`favorite-${productId}`, prevState.toString());
+// إضافة دالة لتحميل المفضلات بشكل دوري
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (token) {
+      fetchUserFavorites();
+    }
+  }, 30000); // تحديث كل 30 ثانية
+  
+  return () => clearInterval(interval);
+}, [token]);
+
+// إضافة دالة لتحميل المفضلات عند التركيز على الصفحة
+useEffect(() => {
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible' && token) {
+      fetchUserFavorites();
     }
   };
+  
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
+}, [token]);
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (token) fetchUserFavorites();
+  }, 100000); // كل 5 دقائق
+  
+  return () => clearInterval(interval);
+}, [token]);
 
   useEffect(() => {
     if (token) {
@@ -282,6 +504,14 @@ const Shop = () => {
     setCurrentPage(1);
   }, [appliedFilters]);
 
+  // إعادة تحميل المفضلات عند تغيير المستخدم أو التوكن
+  useEffect(() => {
+    if (token) {
+      fetchCategories();
+      fetchProducts();
+      cleanInvalidFavorites(); // Clean invalid favorites on load
+    }
+  }, [token]);
   const filteredProducts = allProducts.filter((product) => {
     const matchesCategory =
       appliedFilters.categories.length === 0 ||
@@ -418,6 +648,32 @@ const Shop = () => {
         >
           ➕ إضافة منتج
         </button>
+        {/* رابط جديد للمفضلة */}
+  <Link 
+  to="/favorites" 
+  className={styles.favoritesLink}
+  style={{ display: 'block', marginTop: '15px' }}
+>
+  <button 
+    className={styles.applyButton}
+    style={{ 
+      backgroundColor: '#B22222',  
+      color: 'white',
+      width: '100%',
+      padding: '12px 0',
+      border: 'none',
+      borderRadius: '8px',
+      fontSize: '1.1rem',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease'
+    }}
+  
+  >
+     منتجاتي المفضلة
+  </button>
+</Link>
+
       </div>
 
       {isModalOpen && (

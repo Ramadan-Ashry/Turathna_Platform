@@ -32,7 +32,7 @@ export default function NewPost() {
           },
           params: {
             PageIndex: 1,
-            PageSize: 10,
+            PageSize: 50,
           },
           timeout: 20000,
         });
@@ -166,13 +166,13 @@ export default function NewPost() {
               <div className="flex justify-between mt-4">
                 <button
                   type="submit"
-                  className="bg-[#A0522D] text-white px-4 py-2 rounded-lg hover:bg-[#8B4513] transition text-sm"
+                  className="bg-[#A0522D] text-white w-[100px] p-2 rounded-lg hover:bg-[#8B4513] transition text-lg"
                 >
                   نشر
                 </button>
                 <button
                   type="button"
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-600 text-sm"
+                  className="bg-gray-500 text-white w-[100px] p-2 rounded-md shadow-md hover:bg-gray-600 text-lg"
                   onClick={() => setIsFormVisible(false)}
                 >
                   إلغاء

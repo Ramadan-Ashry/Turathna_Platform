@@ -135,17 +135,20 @@ export default function HandicraftRecommendation() {
               <div className="space-y-4">
                 <h3 className="text-xl font-bold text-right mb-4">نتائج البحث:</h3>
                 {recommendations.map((artisan, index) => (
-                  <div key={index} onClick={() => handleShowProducts(artisan)} className={`p-4 border rounded-lg shadow-sm transition-all cursor-pointer ${selectedArtisan?.userId === artisan.userId ? 'bg-[#8B4513] text-white border-[#8B4513]' : 'bg-white border-gray-200 hover:border-[#8B4513]'}`}>
+                  <div key={index} onClick={() => handleShowProducts(artisan)} 
+                  className={`p-4 border rounded-lg shadow-sm transition-all cursor-pointer ${selectedArtisan?.userId === artisan.userId ?
+                   'bg-[#8B4513] text-white border-[#8B4513]' : 'bg-white border-gray-200 hover:border-[#8B4513]'}`}>
                     <div className="flex items-start gap-4">
                       <Link to={`/profile/${artisan.userId}`} onClick={(e) => e.stopPropagation()}>
-                        <img src={artisan.profilePicture || "https://via.placeholder.com/60"} alt={artisan.fullName} className="w-16 h-16 rounded-full object-cover border-2 border-current" onError={(e) => { e.target.src = "https://via.placeholder.com/60"; }} />
+                        <img src={artisan.profilePicture || "https://via.placeholder.com/60"} alt={artisan.fullName}
+                         className="w-16 h-16 rounded-full object-cover border-2 border-current" onError={(e) => { e.target.src = "https://via.placeholder.com/60"; }} />
                       </Link>
                       <div className="flex-1 text-right">
                         <Link to={`/profile/${artisan.userId}`} onClick={(e) => e.stopPropagation()}>
                           <h4 className="text-lg font-bold hover:underline mb-1">{artisan.fullName}</h4>
                         </Link>
                         {artisan.relevantSkills?.length > 0 && <div className="mb-1"><span className="text-sm font-semibold">المهارات: </span><span className="text-sm opacity-90">{artisan.relevantSkills.join(', ')}</span></div>}
-                        <div className="mb-1"><span className="text-sm font-semibold">الهاتف: </span><span className="text-sm opacity-90">{artisan.phone}</span></div>
+                        {/* <div className="mb-1"><span className="text-sm font-semibold">الهاتف: </span><span className="text-sm opacity-90">{artisan.phone}</span></div> */}
                         {artisan.connections?.length > 0 && (
                           <div className="flex gap-2 justify-end mt-2">
                             {artisan.connections.map((link, i) => (

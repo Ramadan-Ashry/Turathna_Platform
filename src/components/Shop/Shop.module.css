@@ -6,6 +6,9 @@
     color: #A67C52;
 }
     */
+    body{
+    
+    }
     .shopContainer {
         display: flex;
         flex-direction: row-reverse;
@@ -13,7 +16,8 @@
         padding: 20px;
         padding-top:2rem;
         padding-top:50;
-        background-color: #f5f5f5;
+        /* background-color: #f5f5f5; */
+      background-color: #f8f4e8 !important;
         margin-top: 80px;
     }
     .shopContainer {
@@ -544,4 +548,25 @@
     .modalContent button[type="button"]:hover {
       background-color: #c74f4fdc;
     }
-    
+    /* داخل shop.module.css */
+
+.shopContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+/* إخفاء الـ sidebar على الشاشات الصغيرة */
+@media (max-width: 767px) {
+  .filtersSidebar {
+    display: none;
+  }
+
+  .mainContent {
+    width: 100%;
+  }
+
+  .productsGrid {
+    grid-template-columns: 1fr !important;
+  }
+}
