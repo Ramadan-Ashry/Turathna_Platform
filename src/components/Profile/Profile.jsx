@@ -800,16 +800,18 @@ export default function Profile() {
                           className="flex items-center px-4 sm:px-8 justify-between text-black mb-2 sm:mb-4 rounded-full text-center shadow-md hover:shadow-lg transition-shadow duration-200 min-h-[40px] sm:min-h-[50px]"
                           style={{ backgroundColor: '#F5F5DC' }}
                         >
-                          <span className='flex-1 py-2 sm:py-1 px-2 text-sm sm:text-base text-center' >{skill}</span>
-                          {id === currentUserId && (
-                            <button
-                              onClick={() => handleDeleteSkill(skill)}
-                              className="text-red-600 hover:text-red-800 ml-2 sm:mr-16 flex-shrink-0"
-                              title="حذف المهارة"
-                            >
-                              <FaTimes size={12} className="sm:w-3.5 sm:h-3.5 mr-12" />
-                            </button>
-                          )}
+                         
+  <span className='flex-1 py-2 sm:py-1 px-2 text-sm sm:text-base text-center whitespace-nowrap  text-ellipsis'>{skill}</span>
+  {id === currentUserId && (
+    <button
+      onClick={() => handleDeleteSkill(skill)}
+      className="text-red-600 hover:text-red-800 ml-2 flex-shrink-0 mr-32"
+      title="حذف المهارة"
+    >
+      <FaTimes size={12} className="sm:w-3.5 sm:h-3.5" />
+    </button>
+  )}
+
                         </div>
                       ))
                     ) : (
