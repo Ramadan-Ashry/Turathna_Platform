@@ -26,23 +26,42 @@ export default function Navbar() {
 
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [userImage, setUserImage] = useState(null); // ✅ صورة المستخدم
   const [isAdmin, setIsAdmin] = useState(false);
   const searchRef = useRef(null);
 
-  // استرجاع بيانات المستخدم من localStorage
   useEffect(() => {
     if (token) {
       const storedId = localStorage.getItem("userId");
       const storedName = localStorage.getItem("userName");
       setUserId(storedId);
       setUserName(storedName);
+
+      const storedImage = localStorage.getItem("userImage");
+      if (storedImage) {
+        setUserImage(storedImage);
+      } else {
+        axios.get(`https://ourheritage.runasp.net/api/Users/${storedId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => {
+          const image = res.data?.profilePicture;
+          if (image) {
+            setUserImage(image);
+            localStorage.setItem("userImage", image);
+          }
+        })
+        .catch(err => {
+          console.error("خطأ في جلب صورة المستخدم:", err);
+        });
+      }
     } else {
       setUserId(null);
       setUserName(null);
+      setUserImage(null);
     }
   }, [token]);
 
-  // ✅ التحقق هل المستخدم أدمن من خلال البيانات الفعلية
   useEffect(() => {
     const checkIfAdmin = async () => {
       if (!token) {
@@ -55,7 +74,6 @@ export default function Navbar() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // ✅ هنا التعديل: نتحقق من قيمة isAdmin من داخل body
         if (res.status === 200 && res.data?.isAdmin === true) {
           setIsAdmin(true);
         } else {
@@ -69,7 +87,6 @@ export default function Navbar() {
     checkIfAdmin();
   }, [token]);
 
-  // جلب نتائج البحث
   useEffect(() => {
     if (!token || searchQuery.length < 3) {
       setSearchResults([]);
@@ -102,7 +119,6 @@ export default function Navbar() {
     fetchAndFilterUsers();
   }, [searchQuery, token, navigate]);
 
-  // إغلاق البحث عند الضغط خارج حقل البحث
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -125,8 +141,10 @@ export default function Navbar() {
       localStorage.removeItem('userToken');
       localStorage.removeItem('userId');
       localStorage.removeItem('userName');
+      localStorage.removeItem('userImage');
       setUserId(null);
       setUserName(null);
+      setUserImage(null);
       setIsAdmin(false);
       navigate('/home2');
     } catch (error) {
@@ -141,13 +159,11 @@ export default function Navbar() {
       </div>
 
       <div className="container mx-auto flex justify-between items-center py-3 px-4 sm:px-6 lg:px-8 relative">
-        {/* الشعار */}
         <div className="logo flex items-center text-xl sm:text-2xl lg:text-3xl font-bold">
           <FaHandsHelping className="mr-2 text-[#E6D5B8] text-lg sm:text-xl lg:text-2xl" />
           <span>تراثنا</span>
         </div>
 
-        {/* روابط التنقل */}
         {userId && (
           <nav className="hidden xl:block">
             <ul className="flex text-lg flex-row-reverse gap-6">
@@ -160,7 +176,6 @@ export default function Navbar() {
           </nav>
         )}
 
-        {/* المستخدم + الأزرار */}
         <div className="flex items-center gap-2 sm:gap-3 flex-row-reverse">
           <FaBars
             className="xl:hidden text-xl sm:text-2xl cursor-pointer"
@@ -168,7 +183,7 @@ export default function Navbar() {
           />
 
           {userId ? (
-            <UserMenu userName={userName} photo={photo} onLogout={handleLogout} />
+            <UserMenu userName={userName} photo={userImage || photo} onLogout={handleLogout} />
           ) : (
             <div className="flex gap-2 sm:gap-3">
               <Link to="/login" className="bg-[#2E230D] text-white px-3 py-2 rounded-lg hover:bg-[#A68B55]">تسجيل دخول</Link>
@@ -183,7 +198,6 @@ export default function Navbar() {
           <div className="hidden sm:block"><NotificationBell /></div>
           <div className="hidden sm:block"><ConversationListDropdown /></div>
 
-          {/* البحث */}
           <div className="relative" ref={searchRef}>
             <div className="flex items-center">
               <input
@@ -220,7 +234,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* القائمة الجانبية للموبايل */}
       {isMenuOpen && userId && (
         <nav className="absolute top-24 right-0 w-full bg-[#5D4037] xl:hidden z-40">
           <ul className="flex flex-col text-base sm:text-lg lg:text-xl items-end p-4 gap-2 sm:gap-3">

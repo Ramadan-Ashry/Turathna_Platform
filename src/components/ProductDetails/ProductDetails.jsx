@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom"; // أضف useNavigate
 import styles from "./ProductDetails.module.css";
 import defaultProductImage from "../../assets/image.png";
 import { TokenContext } from "../../Context/TokenContext";
@@ -7,11 +7,12 @@ import { useCart } from "../../Context/CartContext";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate(); // أضف هذا السطر
   const [product, setProduct] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { token } = useContext(TokenContext);
-  const { addToCart } = useCart();
+  const { addToCart, clearCart } = useCart(); // أضف clearCart
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -77,6 +78,25 @@ export default function ProductDetails() {
     alert("تمت إضافة المنتج إلى السلة");
   };
 
+  // دالة جديدة للشراء المباشر
+  const handleBuyNow = () => {
+    // تفريغ السلة أولاً
+    clearCart();
+    
+    // إضافة المنتج الحالي فقط
+    const cartItem = {
+      id: product.id,
+      name: product.title,
+      price: Number(product.price),
+      image: product.imageOrVideo?.[0] || defaultProductImage,
+      quantity: Number(quantity) > 0 ? Number(quantity) : 1,
+    };
+    addToCart(cartItem);
+    
+    // الانتقال مباشرة إلى صفحة الدفع
+    navigate('/checkout');
+  };
+
   return (
     <div className={styles.productDetailsContainer}>
       <div className={styles.productDetails}>
@@ -110,7 +130,10 @@ export default function ProductDetails() {
             />
           </div>
 
-          <button className={styles.buyNow}>اشتري الآن</button>
+          {/* تعديل زر اشتري الآن لاستخدام الدالة الجديدة */}
+          <button className={styles.buyNow} onClick={handleBuyNow}>
+            اشتري الآن
+          </button>
 
           <div className={styles.extraInfo}>
             <p><strong>بلد المنشأ:</strong> مصر</p>

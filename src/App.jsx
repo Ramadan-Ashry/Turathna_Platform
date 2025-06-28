@@ -66,7 +66,8 @@ function App() {
         { path:"/allcat", element:<PopularCategories />} ,
         { path: "/users/:userId", element: <UserActivityDetails /> },
          { path:"/summary", element:<EngagementSummary />} ,
-
+         { path:"/checkout", element:<Checkout />},
+        {path:"/pay", element:<Payment />},
 {path:"/foryou",element:<RecommendationsPage/>},
 
 {path:"/favorites", element:<FavoritesPage />},
