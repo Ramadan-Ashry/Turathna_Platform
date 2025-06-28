@@ -32,6 +32,8 @@ import UserActivityDetails from './components/Admin Dashboard/userActivity'
 import EngagementSummary from './components/Admin Dashboard/EngagementSummary'
 import RecommendationsPage from'./components/For You/RecommendationsPage'
 import FavoritesPage from './components/Shop/FavoritesPage';
+import Payment from './components/Payment/Payment';
+import Checkout from './components/Checkout/Checkout';
 function App() {
   const routes = createBrowserRouter([
     {
@@ -68,6 +70,8 @@ function App() {
 {path:"/foryou",element:<RecommendationsPage/>},
 
 {path:"/favorites", element:<FavoritesPage />},
+{path:"/pay", element:<Payment />},
+{path:"/checkout", element:<Checkout />},
 
         { path: "*", element: <Navigate to="/login" replace /> },
       ],

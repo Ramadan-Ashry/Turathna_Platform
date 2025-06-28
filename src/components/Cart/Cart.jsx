@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../Context/CartContext";
 
 import styles from "./Cart.module.css";
@@ -7,10 +7,19 @@ import product1 from "./../../assets/Screenshot 2025-02-13 210809.png";
 
 export default function Cart() {
   const { cartItems, increaseQuantity, decreaseQuantity, removeFromCart } = useCart();
+  const navigate = useNavigate();
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = 50;
   const total = subtotal + shipping;
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      alert("لا توجد منتجات مضافة في السلة");
+      return;
+    }
+    navigate("/checkout");
+  };
 
   return (
     <div className={styles.cartContainer}>
@@ -80,7 +89,12 @@ export default function Cart() {
               <span>{total} جنيه</span>
             </div>
             
-            <button className={styles.checkoutBtn}>إتمام الشراء</button>
+            <button 
+              className={styles.checkoutBtn}
+              onClick={handleCheckout}
+            >
+              إتمام الشراء
+            </button>
             
             <p className={styles.continueShopping}>أو <Link to="/shop">مواصلة التسوق</Link></p>
 
