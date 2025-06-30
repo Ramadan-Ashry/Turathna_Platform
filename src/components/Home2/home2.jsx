@@ -10,7 +10,7 @@ import video2 from '../../assets/carve.mp4';
 import MessagingDropdown from '../Navbar/MessagingDropdown.jsx';
 import background from '../../assets/background.jpg';
 import { FaArrowLeft } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Footer from "../Footer/Footer";
 import Features from '../Landing/Feature.jsx';
 import { TokenContext } from '../../Context/TokenContext.jsx';
@@ -24,6 +24,7 @@ const HandicraftsHomePage = () => {
   const [isHovering, setIsHovering] = useState(false);
 
   const { isAuthenticated, token } = useContext(TokenContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,6 +68,10 @@ const HandicraftsHomePage = () => {
     setCurrentProductIndex(index);
   };
 
+  const handleViewAllProducts = () => {
+    navigate('/shop');
+  };
+
   return (
     <div className="min-h-screen text-[#5C4033] font-serif">
       {/* Navbar */}
@@ -88,10 +93,10 @@ const HandicraftsHomePage = () => {
         {/* النصوص فوق الفيديو */}
         <section className="hero bg-cover bg-center h-[60vh] flex items-center justify-center text-center relative z-20">
           <div className=" p-8 rounded-lg max-w-4xl mx-4">
-            <h1 className="text-5xl md:text-5xl font-bold mb-4 text-white">
+            <h1 className="text-3xl md:text-5xl font-bold mb-4 text-white">
               منصة تراثنا للصناعات والحرف العربية اليدوية
             </h1>
-            <p className="text-lg md:text-2xl text-white mb-8">
+            <p className="text-base md:text-xl lg:text-2xl text-white mb-8">
               اكتشف تراثنا الغني عبر متجر إلكتروني يعرض أجمل الحرف اليدوية، وورش تعليمية مباشرة مع الحرفيين، ومجتمع متكامل لعشاق التراث العربي
             </p>
             <Link
@@ -107,19 +112,21 @@ const HandicraftsHomePage = () => {
 
       <section className="bg-[#f8f6e8] py-20 relative">
         {/* النص العربي عنّا */}
-        <div className="max-w-6xl mx-auto text-center px-4 mt-24 mb-32 !font-cairo">
-          <h2 className="text-4xl md:text-5xl font-bold text-[#3b312a] mb-6">
+        <div className="max-w-6xl mx-auto text-center px-4 mt-12 md:mt-24 mb-16 md:mb-32 !font-cairo">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-[#3b312a] mb-6">
             بأيدٍ عربيه ماهرة، ننسج حكاية المستقبل من خيوط الماضي.
           </h2>
-          <p className="text-[#3b312a] text-3xl leading-relaxed">
+          <p className="text-[#3b312a] text-lg md:text-2xl lg:text-3xl leading-relaxed">
             نؤمن بأن الحِرفة ليست مجرّد منتج، بل قصة تُروى بروح الأصالة. <br />
             نعمل مع الحرفيين لصناعة قطع تعبّر عن تراثنا… بهويةٍ معاصرة.
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row mt-10">
-          {/* فيديو يسار (لاصق بالحافة) */}
-          <div className="w-64 md:w-1/3">
+        {/* قسم الصور والفيديوهات - محسن للجوال */}
+        {/* Desktop Layout */}
+        <div className="hidden lg:flex flex-row mt-10 gap-0">
+          {/* فيديو يسار */}
+          <div className="w-64 xl:w-1/3 flex justify-start">
             <video
               autoPlay
               loop
@@ -131,31 +138,33 @@ const HandicraftsHomePage = () => {
           </div>
 
           {/* الصور في المنتصف */}
-          <div className="flex-grow flex flex-wrap gap-4 w-full justify-start items-start px-2">
-            <img
-              src={man}
-              alt="clay1"
-              className="w-[400px] h-72 object-cover shadow"
-            />
-            <img
-              src={man2}
-              alt="heritage wall"
-              className="w-[300px] h-65 mr-28 mt-36 object-cover shadow"
-            />
-            <img
-              src={man2}
-              alt="palms"
-              className="w-[350px] h-64 object-cover shadow"
-            />
-            <img
-              src={man}
-              alt="clay2"
-              className="w-[300px] h-[150px] mr-[160px] object-cover shadow"
-            />
+          <div className="flex-grow px-2">
+            <div className="flex flex-wrap gap-4 w-full justify-start items-start">
+              <img
+                src={man}
+                alt="clay1"
+                className="w-[400px] h-72 object-cover shadow rounded-lg"
+              />
+              <img
+                src={man2}
+                alt="heritage wall"
+                className="w-[300px] h-65 mr-28 mt-36 object-cover shadow rounded-lg"
+              />
+              <img
+                src={man2}
+                alt="palms"
+                className="w-[350px] h-64 object-cover shadow rounded-lg"
+              />
+              <img
+                src={man}
+                alt="clay2"
+                className="w-[300px] h-[150px] mr-[160px] object-cover shadow rounded-lg"
+              />
+            </div>
           </div>
 
-          {/* فيديو يمين (لاصق بالحافة) */}
-          <div className="w-96 md:w-[40%]">
+          {/* فيديو يمين */}
+          <div className="w-96 xl:w-[40%] flex justify-end">
             <video
               autoPlay
               loop
@@ -167,11 +176,81 @@ const HandicraftsHomePage = () => {
           </div>
         </div>
 
+        {/* Mobile & Tablet Layout - مع الـ Scroll */}
+        <div className="lg:hidden mt-10">
+          <div className="flex overflow-x-auto gap-4 px-4 pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {/* فيديو أول */}
+            <div className="flex-shrink-0">
+              <video
+                autoPlay
+                loop
+                muted
+                src={video}
+                playsInline
+                className="w-48 h-80 md:w-64 md:h-96 object-cover shadow-md rounded-lg"
+              />
+            </div>
+            
+            {/* الصور */}
+            <div className="flex-shrink-0">
+              <img
+                src={man}
+                alt="clay1"
+                className="w-48 h-80 md:w-64 md:h-96 object-cover shadow rounded-lg"
+              />
+            </div>
+            <div className="flex-shrink-0">
+              <img
+                src={man2}
+                alt="heritage wall"
+                className="w-48 h-80 md:w-64 md:h-96 object-cover shadow rounded-lg"
+              />
+            </div>
+            <div className="flex-shrink-0">
+              <img
+                src={man2}
+                alt="palms"
+                className="w-48 h-80 md:w-64 md:h-96 object-cover shadow rounded-lg"
+              />
+            </div>
+            <div className="flex-shrink-0">
+              <img
+                src={man}
+                alt="clay2"
+                className="w-48 h-80 md:w-64 md:h-96 object-cover shadow rounded-lg"
+              />
+            </div>
+            
+            {/* فيديو ثاني */}
+            <div className="flex-shrink-0">
+              <video
+                autoPlay
+                loop
+                muted
+                src={video2}
+                playsInline
+                className="w-48 h-80 md:w-64 md:h-96 object-cover shadow-md rounded-lg"
+              />
+            </div>
+          </div>
+          
+          {/* إخفاء الـ scrollbar */}
+          <style jsx>{`
+            .scrollbar-hide {
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+        </div>
+
         <Features />
 
         {/* Products Cards Section */}
         <section className="max-w-6xl mx-auto px-4 py-12">
-          <h2 className="text-4xl font-bold text-[#3b312a] text-center mb-10 !font-cairo">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#3b312a] text-center mb-10 !font-cairo">
             منتجاتنا المميزة
           </h2>
           {loading ? (
@@ -229,12 +308,12 @@ const HandicraftsHomePage = () => {
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Link
-                  to={isAuthenticated ? "/shop" : "/login"}
-                  className="bg-[#8B4513] text-white py-3 px-8 rounded-lg font-semibold hover:bg-[#5D4037] transition inline-block !font-cairo text-lg shadow-md hover:shadow-lg"
+                 <button
+                  onClick={handleViewAllProducts}
+                  className="bg-[#8B4513] text-white py-2 px-3 md:px-4 rounded-md font-medium hover:bg-[#5D4037] transition !font-cairo text-sm md:text-base shadow hover:shadow-md cursor-pointer w-auto"
                 >
                   عرض جميع المنتجات
-                </Link>
+                </button>
               </div>
             </div>
           )}
@@ -242,7 +321,7 @@ const HandicraftsHomePage = () => {
 
         {/* زر الرجوع للأعلى */}
         <button
-          className="fixed bottom-6 w-14 h-14 left-6 bg-[#9e4f1b] text-white p-3 rounded-full shadow-md hover:bg-[#c2601e] transition transform hover:scale-110"
+          className="fixed bottom-6 w-12 h-12 md:w-14 md:h-14 left-6 bg-[#9e4f1b] text-white p-2 md:p-3 rounded-full shadow-md hover:bg-[#c2601e] transition transform hover:scale-110 text-lg md:text-xl"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
           ↑

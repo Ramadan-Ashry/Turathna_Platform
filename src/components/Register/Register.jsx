@@ -9,7 +9,9 @@ export default function Register() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   let navigate = useNavigate();
-
+ const handleOpenAccount = () => {
+    navigate('/login');
+  };
   function validate(values) {
     let errors = {};
     if (!values.firstName || values.firstName.length < 3) {
@@ -200,6 +202,17 @@ export default function Register() {
           >
             {isLoading ? "جارٍ التحميل..." : "إنشاء حساب"}
           </button>
+          <div className='text-center mt-4'>
+            <p className="text-sm">
+           هل لديك حساب؟{' '}
+              <span
+                onClick={handleOpenAccount}
+                className="text-[#A68B55] hover:underline cursor-pointer"
+              >
+               تسجيل الدخول
+              </span>
+            </p>
+          </div>
         </form>
       </div>
     </div>

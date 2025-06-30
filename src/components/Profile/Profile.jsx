@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -18,6 +17,7 @@ export default function Profile() {
   const { id } = useParams();
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [userProducts, setUserProducts] = useState([]); // حالة جديدة للمنتجات
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newSkill, setNewSkill] = useState("");
@@ -61,7 +61,7 @@ export default function Profile() {
         `https://ourheritage.runasp.net/api/Users/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       const postsRes = await axios.get(
         `https://ourheritage.runasp.net/api/Articles`,
         {
@@ -73,17 +73,29 @@ export default function Profile() {
           },
         }
       );
-  
+
+      const productsRes = await axios.get(
+        `https://ourheritage.runasp.net/api/HandiCrafts`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            PageIndex: 1,
+            PageSize: 100,
+            UserId: id, // افتراض أن API يدعم تصفية المنتجات حسب UserId
+          },
+        }
+      );
+
       const followersRes = await axios.get(
         `https://ourheritage.runasp.net/api/Follow/${id}/followers`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       const followingsRes = await axios.get(
         `https://ourheritage.runasp.net/api/Follow/${id}/followings`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       setUserData(userRes.data);
       setUserSkills(userRes.data.skills || []);
       setFollowers(followersRes.data || []);
@@ -93,11 +105,15 @@ export default function Profile() {
       );
       setIsFollowing(isUserFollowing);
       localStorage.setItem(`followStatus_${id}`, JSON.stringify(isUserFollowing));
-  
+
       if (Array.isArray(postsRes.data.items)) {
         setUserPosts(postsRes.data.items.filter((p) => p.userId == id));
       }
-  
+
+      if (Array.isArray(productsRes.data.items)) {
+        setUserProducts(productsRes.data.items.filter((p) => p.userId == id));
+      }
+
       setProfilePicture(userRes.data.profilePicture || profileimg);
       setCoverImage(userRes.data.coverProfilePicture || "https://via.placeholder.com/1500x500");
     } catch (err) {
@@ -202,7 +218,7 @@ export default function Profile() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setProfilePicture(userRes.data.profilePicture);
-        setUserData(userRes.data); 
+        setUserData(userRes.data);
       }
     } catch (err) {
       console.error("Error uploading profile picture:", err);
@@ -213,10 +229,10 @@ export default function Profile() {
   const handleCoverImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
+
     const formData = new FormData();
     formData.append("ImageCover", file);
-  
+
     try {
       const response = await axios.post(
         "https://ourheritage.runasp.net/api/Users/cover-photo",
@@ -228,7 +244,7 @@ export default function Profile() {
           },
         }
       );
-  
+
       if (response.status === 200) {
         const userRes = await axios.get(
           `https://ourheritage.runasp.net/api/Users/${id}`,
@@ -258,10 +274,10 @@ export default function Profile() {
   const handleAddSkills = async (e) => {
     e.preventDefault();
     if (!newSkill) return setError("يجب إدخال مهارة.");
-    
+
     const updatedSkills = [...userSkills, newSkill];
     setUserSkills(updatedSkills);
-    
+
     try {
       await axios.post(
         `https://ourheritage.runasp.net/api/Users/skills`,
@@ -273,13 +289,13 @@ export default function Profile() {
           },
         }
       );
-  
+
       setNewSkill("");
       setError(null);
     } catch (err) {
       console.error(err);
       setError("حدث خطأ أثناء إضافة المهارة.");
-      setUserSkills(userSkills); 
+      setUserSkills(userSkills);
     }
   };
 
@@ -307,7 +323,7 @@ export default function Profile() {
     } catch (err) {
       console.error("Error deleting skill:", err);
       setError("حدث خطأ أثناء حذف المهارة.");
-      setUserSkills(userSkills); 
+      setUserSkills(userSkills);
     }
   };
 
@@ -318,7 +334,7 @@ export default function Profile() {
     }
 
     try {
-      const endpoint = isFollowing 
+      const endpoint = isFollowing
         ? `https://ourheritage.runasp.net/api/Follow/unfollow/${parseInt(currentUserId)}/${parseInt(id)}`
         : `https://ourheritage.runasp.net/api/Follow/follow`;
 
@@ -331,10 +347,10 @@ export default function Profile() {
 
       const body = { followerId: parseInt(currentUserId), followingId: parseInt(id) };
 
-      const response = isFollowing 
+      const response = isFollowing
         ? await axios.delete(endpoint, { ...config, data: body })
         : await axios.post(endpoint, body, config);
-      
+
       if (response.status === 200 || response.status === 201) {
         const followersRes = await axios.get(
           `https://ourheritage.runasp.net/api/Follow/${id}/followers`,
@@ -347,7 +363,7 @@ export default function Profile() {
       } else {
         throw new Error("Unexpected response status");
       }
-    } 
+    }
     catch (err) {
       console.error("Follow/Unfollow error:", err);
       if (err.response?.status === 400 && err.response?.data?.message === "You are already following this user.") {
@@ -397,7 +413,7 @@ export default function Profile() {
           },
         }
       );
-  
+
       if (Array.isArray(postsRes.data.items)) {
         setUserPosts(postsRes.data.items.filter((p) => p.userId == id));
       }
@@ -505,13 +521,13 @@ export default function Profile() {
                   >
                     {isFollowing ? (
                       <>
-                        <FaUserMinus className="text-sm" /> 
+                        <FaUserMinus className="text-sm" />
                         <span className="hidden sm:inline">إلغاء المتابعة</span>
                         <span className="sm:hidden">إلغاء</span>
                       </>
                     ) : (
                       <>
-                        <FaUserPlus className="text-sm" /> 
+                        <FaUserPlus className="text-sm" />
                         <span className="hidden sm:inline">متابعة</span>
                         <span className="sm:hidden">متابعة</span>
                       </>
@@ -524,10 +540,10 @@ export default function Profile() {
 
           <div className={styles.nameAndTabs}>
             <h2 className="text-black text-lg sm:text-xl lg:text-2xl">{userData.fullName || `${userData.firstName} ${userData.lastName}`}</h2>
-            
+
             {/* Mobile Toggle Stats */}
             <div className="block sm:hidden mb-4">
-              <div className="grid grid-cols-4 gap-1 bg-white rounded-lg shadow-sm p-2">
+              <div className="grid grid-cols-5 gap-1 bg-white rounded-lg shadow-sm p-2">
                 <button
                   onClick={() => setActiveTab("Posts")}
                   className={`flex flex-col items-center p-3 rounded-lg transition-all ${activeTab === "Posts" ? 'bg-[#B22222] text-white' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
@@ -541,6 +557,13 @@ export default function Profile() {
                 >
                   <div className="text-lg font-bold">{postImages.length}</div>
                   <div className="text-xs">صور</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab("Products")}
+                  className={`flex flex-col items-center p-3 rounded-lg transition-all ${activeTab === "Products" ? 'bg-[#B22222] text-white' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
+                >
+                  <div className="text-lg font-bold">{userProducts.length}</div>
+                  <div className="text-xs">منتجات</div>
                 </button>
                 <button
                   onClick={() => setActiveTab("Followers")}
@@ -557,7 +580,7 @@ export default function Profile() {
                   <div className="text-xs">يتابع</div>
                 </button>
               </div>
-              
+
               <button
                 onClick={() => setActiveTab("About")}
                 className={`w-full mt-2 p-3 rounded-lg transition-all ${activeTab === "About" ? 'bg-[#B22222] text-white' : 'bg-white text-gray-700 hover:bg-gray-50'} shadow-sm border`}
@@ -580,6 +603,12 @@ export default function Profile() {
                   onClick={() => setActiveTab("Pictures")}
                 >
                   الصور
+                </button>
+                <button
+                  className={`${styles.tabButton} ${activeTab === "Products" ? styles.activeTab : ''} px-2 py-2 sm:px-4 sm:py-2 text-sm sm:text-base whitespace-nowrap`}
+                  onClick={() => setActiveTab("Products")}
+                >
+                  المنتجات
                 </button>
                 <button
                   className={`${styles.tabButton} ${activeTab === "Followers" ? styles.activeTab : ''} px-2 py-2 sm:px-4 sm:py-2 text-sm sm:text-base whitespace-nowrap`}
@@ -606,7 +635,11 @@ export default function Profile() {
           {activeTab === "Posts" && (
             <div className={styles.postsSection}>
               {/* Desktop Stats */}
-              <div className={`${styles.stats} hidden sm:grid grid-cols-3 gap-2 sm:gap-4 text-center`}>
+              <div className={`${styles.stats} hidden sm:grid grid-cols-4 gap-2 sm:gap-4 text-center`}>
+                <div className="p-2 sm:p-4">
+                  <div className="text-xs sm:text-sm font-medium text-gray-600">منتجات</div>
+                  <p className="text-lg sm:text-xl font-bold text-[#B22222]">{userProducts.length}</p>
+                </div>
                 <div className="p-2 sm:p-4">
                   <div className="text-xs sm:text-sm font-medium text-gray-600">متابع</div>
                   <p className="text-lg sm:text-xl font-bold text-[#B22222]">{followers.length}</p>
@@ -623,11 +656,11 @@ export default function Profile() {
 
               {id === currentUserId && (
                 <form onSubmit={handleAddSkills} className="my-4">
-                  <input 
-                    type="text" 
-                    value={newSkill} 
-                    onChange={(e) => setNewSkill(e.target.value)} 
-                    placeholder="أدخل مهارة جديدة" 
+                  <input
+                    type="text"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                    placeholder="أدخل مهارة جديدة"
                     className="mb-2 p-2 border border-gray-300 rounded w-full text-sm sm:text-base"
                     ref={skillInputRef}
                   />
@@ -722,6 +755,43 @@ export default function Profile() {
             </div>
           )}
 
+          {activeTab === "Products" && (
+            <div className={styles.postsSection}>
+              <h3 className="text-lg sm:text-xl font-bold mb-4">المنتجات</h3>
+              {userProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {userProducts.map((product) => (
+                    <Link
+                      to={`/product/${product.id}`}
+                      key={product.id}
+                      className="bg-white rounded-lg shadow-md overflow-hidden transform transition hover:scale-105 flex flex-col h-full"
+                    >
+                      <img
+                        src={product.imageOrVideo[0] || profileimg}
+                        alt={product.title}
+                        className="w-full h-48 object-cover transition-opacity duration-300"
+                        onError={(e) => { e.target.src = profileimg; }}
+                      />
+                      <div className="p-4 flex-grow">
+                        <h3 className="text-lg font-semibold text-[#3b312a] mb-2">
+                          {product.title}
+                        </h3>
+                        <p className="text-[#5C4033] text-sm mb-3 line-clamp-2">
+                          {product.description}
+                        </p>
+                        <p className="text-[#8B4513] font-bold text-lg mt-auto">
+                          {product.price} ر.س
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 py-8">لم يتم إضافة منتجات بعد.</p>
+              )}
+            </div>
+          )}
+
           {activeTab === "Followers" && (
             <div className={styles.postsSection}>
               <h3 className="text-lg sm:text-xl font-bold mb-4">المتابعون</h3>
@@ -774,7 +844,7 @@ export default function Profile() {
                 <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-[#B22222] border-b-2 border-[#B22222] pb-2">
                   حول {userData.fullName || `${userData.firstName} ${userData.lastName}`}
                 </h3>
-                
+
                 <div className="mb-6 sm:mb-8">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-10 gap-4">
                     <h4 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center gap-2">
@@ -791,27 +861,25 @@ export default function Profile() {
                       </button>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {userSkills.length > 0 ? (
                       userSkills.map((skill, index) => (
-                        <div 
-                          key={index} 
+                        <div
+                          key={index}
                           className="flex items-center px-4 sm:px-8 justify-between text-black mb-2 sm:mb-4 rounded-full text-center shadow-md hover:shadow-lg transition-shadow duration-200 min-h-[40px] sm:min-h-[50px]"
                           style={{ backgroundColor: '#F5F5DC' }}
                         >
-                         
-  <span className='flex-1 py-2 sm:py-1 px-2 text-sm sm:text-base text-center whitespace-nowrap  text-ellipsis'>{skill}</span>
-  {id === currentUserId && (
-    <button
-      onClick={() => handleDeleteSkill(skill)}
-      className="text-red-600 hover:text-red-800 ml-2 flex-shrink-0 mr-32"
-      title="حذف المهارة"
-    >
-      <FaTimes size={12} className="sm:w-3.5 sm:h-3.5" />
-    </button>
-  )}
-
+                          <span className='flex-1 py-2 sm:py-1 px-2 text-sm sm:text-base text-center whitespace-nowrap text-ellipsis'>{skill}</span>
+                          {id === currentUserId && (
+                            <button
+                              onClick={() => handleDeleteSkill(skill)}
+                              className="text-red-600 hover:text-red-800 ml-2 flex-shrink-0 mr-32"
+                              title="حذف المهارة"
+                            >
+                              <FaTimes size={12} className="sm:w-3.5 sm:h-3.5" />
+                            </button>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -847,11 +915,13 @@ export default function Profile() {
             </div>
           )}
         </div>
-        <div className="col-span-12 lg:col-span-3">
-          <ProfileLeftside 
-            userData={userData} 
-            suggestedFriends={suggestedFriends} 
-            followedCraftsmen={followedCraftsmen} 
+        
+        {/* Left Sidebar - Hidden on small screens, visible on large screens */}
+        <div className="hidden lg:block lg:col-span-3">
+          <ProfileLeftside
+            userData={userData}
+            suggestedFriends={suggestedFriends}
+            followedCraftsmen={followedCraftsmen}
             toggleFollow={toggleFollow}
           />
         </div>
